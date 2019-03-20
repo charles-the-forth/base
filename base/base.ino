@@ -22,7 +22,7 @@ uint8_t screenNum = 1;
 #define NETWORKID       0   // Must be the same for all nodes (0 to 255)
 #define MYNODEID        2   // My node ID (0 to 255)
 #define FREQUENCY       RF69_433MHZ
-#define FREQUENCYSPECIFIC 433102000  // Should be value in Hz, now 433 Mhz will be set
+#define FREQUENCYSPECIFIC 433000000  // Should be value in Hz, now 433 Mhz will be set
 #define chip_select_pin   43
 #define interupt_pin    9
 
@@ -132,9 +132,7 @@ void loop()
 
   if (radio.receiveDone()) // Got one!
   {
-    Serial.println("Message received: " + String(income.messageId));
-    Serial.println("Number of satelites: " + String(income.num_of_satelites));
-    Serial.println("Temperature: " + String(income.temperature));
+    Serial.println("Light intensity: " + String(income.lightIntensity));
 
     income = *(OcsStorage::message*)radio.DATA;
     ocsData.Update(income, screenNum);
