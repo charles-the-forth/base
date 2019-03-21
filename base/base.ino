@@ -79,63 +79,14 @@ void setup()
 
 void loop()
 {
-  int button1 = digitalRead(BUTTON_1);
-  int button2 = digitalRead(BUTTON_2);
-  int button3 = digitalRead(BUTTON_3);
-
-
-
-  if(button1 == LOW)
-  {
-  if(screenNum == 1)
-  {
-    screenNum = 0;
-    ocsDesign.drawLeftScreen();
-    delay(300);
-    Serial.println("Button 1 ");
-  }
-  else if(screenNum == 2)
-  {
-    screenNum = 1;
-    ocsDesign.drawHomescreen();
-    delay(300);
-    Serial.println("Button 1 ");
-  }
-  }
-  else if(button2 == LOW)
-  {
-  if(screenNum != 1)
-  {
-    screenNum = 1;
-    ocsDesign.drawHomescreen();
-    delay(300);
-    Serial.println("Button 2 ");
-  }
-  }
-  else if(button3 == LOW)
-  {
-  if(screenNum == 1)
-  {
-    screenNum = 2;
-      ocsDesign.drawRightScreen();
-    delay(300);
-      Serial.println("Button 3 ");
-  }
-  else if(screenNum == 0)
-  {
-    screenNum = 1;
-    ocsDesign.drawHomescreen();
-    delay(300);
-    Serial.println("Button 3 ");
-  }
-  }  
-
-  if (radio.receiveDone()) // Got one!
-  {
-    Serial.println("Light intensity: " + String(income.lightIntensity));
-
+  if (radio.receiveDone()) {
     income = *(OcsStorage::message*)radio.DATA;
     ocsData.Update(income, screenNum);
+    Serial.println(String(income.temperatureCanSat) + ";" + String(income.temperatureExternal) + ";" + String(income.temperatureMPU) + ";" + String(income.pressureCanSat) + ";"
+      + String(income.pressureExternal) + ";" + String(income.humidityCanSat) + ";" + String(income.humidityExternal) + ";" + String(income.accelerationX, 6) + ";" + String(income.accelerationY, 6) + ";"
+      + String(income.accelerationZ, 6) + ";" + String(income.rotationX, 6) + ";" + String(income.rotationY, 6) + ";" + String(income.rotationZ, 6) + ";" + String(income.lightIntensity)
+    );
+    
     delay(100);
-   }
+  }
 }
