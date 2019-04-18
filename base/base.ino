@@ -1,3 +1,4 @@
+#include "SDCard.h"
 #include <OcsStorage.h>
 #include <RFM69.h>
 #include <Ucglib.h>
@@ -27,6 +28,7 @@ uint8_t screenNum = 2;
 #define FREQUENCYSPECIFIC 433102000  // Should be value in Hz, now 433 Mhz will be set
 #define chip_select_pin   43
 #define interupt_pin    9
+#define sd_cs_pin 35
 
 bool isRadioOk = true;
 
@@ -35,8 +37,10 @@ RFM69 radio(chip_select_pin, interupt_pin, true);
 Ucglib_ST7735_18x128x160_HWSPI ucg(6, 7, -1);
 OcsGraphics ocsDesign(ucg);
 OcsStorage ocsData(ocsDesign);
-
+SDCard sdCard;
 OcsStorage::message income;
+File file;
+String csvFilename;
 
 void setup()
 {
@@ -65,6 +69,22 @@ void setup()
     radio.setFrequency(FREQUENCYSPECIFIC);
     radio.setHighPower(true); // Always use this for RFM69HW
   }
+
+  if (!SD.begin(sd_cs_pin)) {
+    Serial.println("initialization failed!");
+  }
+  Serial.println("initialization done.");
+
+  csvFilename = sdCard.getFilename();
+  file = SD.open(csvFilename, FILE_WRITE);
+
+  if (file) {
+    file.println("message;light;tempCanSat;humCanSat;pressCanSat;altCanSat;year;month;day;hour;minute;second;numOfSats;latInt;lonInt;latAfterDot;lonAfterDot");
+    file.close();
+    Serial.println("File header written.");
+  } else {
+    Serial.println("Error writing file header.");
+  }
 }
 
 void loop()
@@ -92,38 +112,21 @@ void loop()
     }
   }
 
-
   if (radio.receiveDone()) // Got one!
   {
-    /*Serial.println("messageId: " + String(income.messageId));
-    Serial.println("temperatureCanSat: " + String(income.temperatureCanSat));
-    Serial.println("temperatureMPU: " + String(income.temperatureMPU));
-    Serial.println("temperatureExternal: " + String(income.temperatureExternal));
-    Serial.println("pressureCanSat: " + String(income.pressureCanSat));
-    Serial.println("pressureExternal: " + String(income.pressureExternal));
-    Serial.println("humidityCanSat: " + String(income.humidityCanSat));
-    Serial.println("humidityExternal: " + String(income.humidityExternal));
-    Serial.println("altitudeCanSat: " + String(income.altitudeCanSat));
-    Serial.println("altitudeExternal: " + String(income.altitudeExternal));
-    Serial.println("uvIndex: " + String(income.uvIndex));
-    Serial.println("lightIntensity: " + String(income.lightIntensity));
-    Serial.println("accelerationX: " + String(income.accelerationX));
-    Serial.println("accelerationY: " + String(income.accelerationY));
-    Serial.println("accelerationZ: " + String(income.accelerationZ));
-    Serial.println("rotationX: " + String(income.rotationX));
-    Serial.println("rotationY: " + String(income.rotationY));
-    Serial.println("rotationZ: " + String(income.rotationZ));
-    Serial.println("year: " + String(income.year));
-    Serial.println("month: " + String(income.month));
-    Serial.println("day: " + String(income.day));
-    Serial.println("hour: " + String(income.hour));
-    Serial.println("minute: " + String(income.minute));
-    Serial.println("second: " + String(income.second));
-    Serial.println("numberOfSatellites: " + String(income.numberOfSatellites));
-    Serial.println("latInt: " + String(income.latInt));
-    Serial.println("lonInt: " + String(income.lonInt));
-    Serial.println("latAfterDot: " + String(income.latAfterDot));
-    Serial.println("lonAfterDot: " + String(income.lonAfterDot));*/
+    file = SD.open(csvFilename, FILE_WRITE);
+    if (file)
+    {
+      file.print(String(income.messageId) + ";" + String(income.temperatureCanSat) + ";" + String(income.pressureCanSat) + ";");
+      file.print(String(income.humidityCanSat) + ";" + String(income.lightIntensity) + ";" + String(income.altitudeCanSat) + ";");
+      file.print(String(income.year) + ";" + String(income.month) + ";" + String(income.day) + ";" + String(income.hour) + ";");
+      file.print(String(income.minute) + ";" + String(income.second) + ";" + String(income.numberOfSatellites) + ";");
+      file.println(String(income.latInt) + ";" + String(income.lonInt) + ";" + String(income.latAfterDot) + ";" + String(income.lonAfterDot));  
+      file.close();
+      Serial.println("Writing was successful.");
+    } else {
+      Serial.println("Error writing data.");
+    }
     income = *(OcsStorage::message*)radio.DATA;
     ocsData.Update(income, screenNum);
     delay(300);
