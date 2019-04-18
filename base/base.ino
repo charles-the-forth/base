@@ -80,7 +80,7 @@ void loop()
       ocsDesign.drawScreen(screenNum);
       delay(300);
     }
-  } else if (button2 == LOW) {
+  } else if (button2 == LOW && screenNum != 2) {
     screenNum = 2;
     ocsDesign.drawScreen(screenNum);
     delay(300);
