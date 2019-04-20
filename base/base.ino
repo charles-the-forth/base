@@ -70,10 +70,7 @@ void setup()
     radio.setHighPower(true); // Always use this for RFM69HW
   }
 
-  if (!SD.begin(sd_cs_pin)) {
-    Serial.println("initialization failed!");
-  }
-  Serial.println("initialization done.");
+  SD.begin(sd_cs_pin);
 
   csvFilename = sdCard.getFilename();
   file = SD.open(csvFilename, FILE_WRITE);
@@ -81,9 +78,6 @@ void setup()
   if (file) {
     file.println("message;light;tempCanSat;humCanSat;pressCanSat;altCanSat;year;month;day;hour;minute;second;numOfSats;latInt;lonInt;latAfterDot;lonAfterDot");
     file.close();
-    Serial.println("File header written.");
-  } else {
-    Serial.println("Error writing file header.");
   }
 }
 
@@ -123,10 +117,11 @@ void loop()
       file.print(String(income.minute) + ";" + String(income.second) + ";" + String(income.numberOfSatellites) + ";");
       file.println(String(income.latInt) + ";" + String(income.lonInt) + ";" + String(income.latAfterDot) + ";" + String(income.lonAfterDot));  
       file.close();
-      Serial.println("Writing was successful.");
-    } else {
-      Serial.println("Error writing data.");
     }
+    
+    Serial.print("START;" + String(income.messageId) + ";" + String(income.temperatureCanSat) + ";" + String(income.pressureCanSat) + ";" + String(income.humidityCanSat) + ";" + String(income.lightIntensity) + ";" + String(income.altitudeCanSat) + ";" + String(income.numberOfSatellites) + ";");
+    Serial.println(String(income.year) + ";" + String(income.month) + ";" + String(income.day) + ";" + String(income.hour) + ";" + String(income.minute) + ";" + String(income.second) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";" + String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";END");
+    
     income = *(OcsStorage::message*)radio.DATA;
     ocsData.Update(income, screenNum);
     delay(300);
