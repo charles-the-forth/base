@@ -76,7 +76,7 @@ void setup()
   file = SD.open(csvFilename, FILE_WRITE);
 
   if (file) {
-    file.println("message;light;tempCanSat;humCanSat;pressCanSat;altCanSat;year;month;day;hour;minute;second;numOfSats;latInt;lonInt;latAfterDot;lonAfterDot");
+    file.println("message;light;tempCanSat;tempExternal;ambientTemp;objectTemp;humCanSat;humExternal;pressCanSat;pressExternal;altCanSat;altExternal;numOfSats;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con");
     file.close();
   }
 }
@@ -108,21 +108,28 @@ void loop()
 
   if (radio.receiveDone()) // Got one!
   {
-    file = SD.open(csvFilename, FILE_WRITE);
-    if (file)
-    {
-      file.print(String(income.messageId) + ";" + String(income.temperatureCanSat) + ";" + String(income.pressureCanSat) + ";");
-      file.print(String(income.humidityCanSat) + ";" + String(income.lightIntensity) + ";" + String(income.altitudeCanSat) + ";");
-      file.print(String(income.year) + ";" + String(income.month) + ";" + String(income.day) + ";" + String(income.hour) + ";");
-      file.print(String(income.minute) + ";" + String(income.second) + ";" + String(income.numberOfSatellites) + ";");
-      file.println(String(income.latInt) + ";" + String(income.lonInt) + ";" + String(income.latAfterDot) + ";" + String(income.lonAfterDot));  
-      file.close();
-    }
-    
-    Serial.print("START;" + String(income.messageId) + ";" + String(income.temperatureCanSat) + ";" + String(income.pressureCanSat) + ";" + String(income.humidityCanSat) + ";" + String(income.lightIntensity) + ";" + String(income.altitudeCanSat) + ";" + String(income.numberOfSatellites) + ";");
-    Serial.println(String(income.year) + ";" + String(income.month) + ";" + String(income.day) + ";" + String(income.hour) + ";" + String(income.minute) + ";" + String(income.second) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";" + String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";END");
+    Serial.println("RSSI: " + String(radio.readRSSI()));
     
     income = *(OcsStorage::message*)radio.DATA;
+    file = SD.open(csvFilename, FILE_WRITE);
+
+    Serial.print("START;" + String(income.messageId) + ";" + String(income.lightIntensity) + ";");
+    Serial.print(String(income.temperatureCanSat) + ";" + String(income.temperatureExternal) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";" + String(income.humidityCanSat) + ";");
+    Serial.print(String(income.humidityExternal) + ";" + String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";" + String(income.altitudeExternal) + ";");
+    Serial.print(String(income.numberOfSatellites) + ";");
+    Serial.print(String(income.latInt) + ";"  + String(income.lonInt) + ";"  + String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";");
+    Serial.println(String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";"  + String(income.tvoc) + ";"  + String(income.o2Concentration));
+
+    if (file)
+    {
+      file.print(String(income.messageId) + ";" + String(income.lightIntensity) + ";");
+      file.print(String(income.temperatureCanSat) + ";" + String(income.temperatureExternal) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";" + String(income.humidityCanSat) + ";");
+      file.print(String(income.humidityExternal) + ";" + String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";" + String(income.altitudeExternal) + ";");
+      file.print(String(income.numberOfSatellites) + ";");
+      file.print(String(income.latInt) + ";"  + String(income.lonInt) + ";"  + String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";");
+      file.println(String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";"  + String(income.tvoc) + ";"  + String(income.o2Concentration));
+      file.close();
+    }
     ocsData.Update(income, screenNum);
     delay(300);
   }
