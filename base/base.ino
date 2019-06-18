@@ -25,7 +25,7 @@ uint8_t screenNum = 2;
 #define NETWORKID       0   // Must be the same for all nodes (0 to 255)
 #define MYNODEID        2   // My node ID (0 to 255)
 #define FREQUENCY       RF69_433MHZ
-#define FREQUENCYSPECIFIC 433102000  // Should be value in Hz, now 433 Mhz will be set
+#define FREQUENCYSPECIFIC 443000000  // Should be value in Hz, now 433 Mhz will be set
 #define chip_select_pin   43
 #define interupt_pin    9
 #define sd_cs_pin 35
@@ -76,7 +76,7 @@ void setup()
   file = SD.open(csvFilename, FILE_WRITE);
 
   if (file) {
-    file.println("message;light;tempCanSat;tempExternal;ambientTemp;objectTemp;humCanSat;humExternal;pressCanSat;pressExternal;altCanSat;altExternal;numOfSats;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con");
+    file.println("message;light;tempCanSat;tempExternal;ambientTemp;objectTemp;humCanSat;humExternal;pressCanSat;pressExternal;altCanSat;altExternal;numOfSats;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con;RSSI");
     file.close();
   }
 }
@@ -107,9 +107,7 @@ void loop()
   }
 
   if (radio.receiveDone()) // Got one!
-  {
-    Serial.println("RSSI: " + String(radio.readRSSI()));
-    
+  {    
     income = *(OcsStorage::message*)radio.DATA;
     file = SD.open(csvFilename, FILE_WRITE);
 
@@ -118,7 +116,7 @@ void loop()
     Serial.print(String(income.humidityExternal) + ";" + String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";" + String(income.altitudeExternal) + ";");
     Serial.print(String(income.numberOfSatellites) + ";");
     Serial.print(String(income.latInt) + ";"  + String(income.lonInt) + ";"  + String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";");
-    Serial.println(String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";"  + String(income.tvoc) + ";"  + String(income.o2Concentration));
+    Serial.println(String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";"  + String(income.tvoc) + ";"  + String(income.o2Concentration) + ";"  + String(radio.readRSSI()) + ";END");
 
     if (file)
     {
