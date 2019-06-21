@@ -7,9 +7,9 @@
 #define UCG_INTERRUPT_SAFE
 #endif
 
-uint8_t screenNum = 2;
+uint8_t screenNum = 1;
 
-#define SCREENS_COUNT 3
+#define SCREENS_COUNT 2
 
 #define Serial SerialUSB
 
@@ -95,7 +95,7 @@ void loop()
       delay(300);
     }
   } else if (button2 == LOW && screenNum != 2) {
-    screenNum = 2;
+    screenNum = 1;
     ocsDesign.drawScreen(screenNum);
     delay(300);
   } else if (button3 == LOW) {
@@ -111,24 +111,45 @@ void loop()
     income = *(OcsStorage::message*)radio.DATA;
     file = SD.open(csvFilename, FILE_WRITE);
 
-    Serial.print("START;" + String(income.messageId) + ";" + String(income.lightIntensity) + ";");
-    Serial.print(String(income.temperatureCanSat) + ";" + String(income.temperatureExternal) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";" + String(income.humidityCanSat) + ";");
-    Serial.print(String(income.humidityExternal) + ";" + String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";" + String(income.altitudeExternal) + ";");
-    Serial.print(String(income.numberOfSatellites) + ";");
-    Serial.print(String(income.latInt) + ";"  + String(income.lonInt) + ";"  + String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";");
-    Serial.println(String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";"  + String(income.tvoc) + ";"  + String(income.o2Concentration) + ";"  + String(radio.readRSSI()) + ";END");
+    float rssi = radio.readRSSI();
+    Serial.print("START;" + String(income.messageId) + ";" + String(income.lightIntensity) + ";" + String(income.uvIndex) + ";");
+    Serial.print(String(income.temperatureCanSat) + ";" + String(income.temperatureMPU) + ";" + String(income.temperatureExternal) + ";");
+    Serial.print(String(income.temperatureSCD30) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";");
+    Serial.print(String(income.humidityCanSat) + ";"+ String(income.humidityExternal) + ";" + String(income.humiditySCD30) + ";");
+    Serial.print(String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";");
+    Serial.print(String(income.altitudeExternal) + ";" + String(income.accelerationX)+ ";" + String(income.accelerationY) + ";");
+    Serial.print(String(income.accelerationZ) + ";" + String(income.rotationX) + ";" + String(income.rotationY) + ";");
+    Serial.print(String(income.rotationZ) + ";" + String(income.magnetometerX) + ";" + String(income.magnetometerY) + ";");
+    Serial.print(String(income.magnetometerZ) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";");
+    Serial.print(String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";" + String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";");
+    Serial.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";" + String(income.a) + ";");
+    Serial.print(String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";");
+    Serial.print(String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";");
+    Serial.print(String(income.h) + ";" + String(income.k) + ";" + String(income.l) + ";");
+    Serial.print(String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";");
+    Serial.println(String(income.u) + ";" + String(income.v) + ";" + String(income.w) + ";END");
 
     if (file)
     {
-      file.print(String(income.messageId) + ";" + String(income.lightIntensity) + ";");
-      file.print(String(income.temperatureCanSat) + ";" + String(income.temperatureExternal) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";" + String(income.humidityCanSat) + ";");
-      file.print(String(income.humidityExternal) + ";" + String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";" + String(income.altitudeExternal) + ";");
-      file.print(String(income.numberOfSatellites) + ";");
-      file.print(String(income.latInt) + ";"  + String(income.lonInt) + ";"  + String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";");
-      file.println(String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";"  + String(income.tvoc) + ";"  + String(income.o2Concentration));
+      file.print(String(income.messageId) + ";" + String(income.lightIntensity) + ";" + String(income.uvIndex) + ";");
+      file.print(String(income.temperatureCanSat) + ";" + String(income.temperatureMPU) + ";" + String(income.temperatureExternal) + ";");
+      file.print(String(income.temperatureSCD30) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";");
+      file.print(String(income.humidityCanSat) + ";"+ String(income.humidityExternal) + ";" + String(income.humiditySCD30) + ";");
+      file.print(String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";");
+      file.print(String(income.altitudeExternal) + ";" + String(income.accelerationX)+ ";" + String(income.accelerationY) + ";");
+      file.print(String(income.accelerationZ) + ";" + String(income.rotationX) + ";" + String(income.rotationY) + ";");
+      file.print(String(income.rotationZ) + ";" + String(income.magnetometerX) + ";" + String(income.magnetometerY) + ";");
+      file.print(String(income.magnetometerZ) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";");
+      file.print(String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";" + String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";");
+      file.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";" + String(income.a) + ";");
+      file.print(String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";");
+      file.print(String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";");
+      file.print(String(income.h) + ";" + String(income.k) + ";" + String(income.l) + ";");
+      file.print(String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";");
+      file.println(String(income.u) + ";" + String(income.v) + ";" + String(income.w));
       file.close();
     }
     ocsData.Update(income, screenNum);
-    delay(300);
   }
+  delay(50);
 }
