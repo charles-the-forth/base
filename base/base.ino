@@ -1,4 +1,4 @@
-#include "SDCard.h"
+#include <SD.h>
 #include <OcsStorage.h>
 #include <RFM69.h>
 #include <Ucglib.h>
@@ -37,10 +37,9 @@ RFM69 radio(chip_select_pin, interupt_pin, true);
 Ucglib_ST7735_18x128x160_HWSPI ucg(6, 7, -1);
 OcsGraphics ocsDesign(ucg);
 OcsStorage ocsData(ocsDesign);
-SDCard sdCard;
 OcsStorage::message income;
 File file;
-String csvFilename;
+String csvFilename = "result.csv";
 
 void setup()
 {
@@ -72,12 +71,12 @@ void setup()
 
   SD.begin(sd_cs_pin);
 
-  csvFilename = sdCard.getFilename();
   file = SD.open(csvFilename, FILE_WRITE);
 
   if (file) {
-    file.println("message;light;tempCanSat;tempExternal;ambientTemp;objectTemp;humCanSat;humExternal;pressCanSat;pressExternal;altCanSat;altExternal;numOfSats;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con;RSSI");
-    file.close();
+      file.print("message;light;uvIndex;tempCanSat;tempMPU;tempExternal;tempSCD30;ambientTemp;objectTemp;humCanSat;humExternal;humSCD30;pressCanSat;pressExternal;altCanSat;");
+      file.println("altExternal;accX;accY;accZ;rotX;rotY;rotZ;magX;magY;magZ;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con;a;b;c;d;e;f;g;h;i;j;k;l;r;s;t;u;v;w;");
+      file.close();
   }
 }
 
@@ -122,12 +121,8 @@ void loop()
     Serial.print(String(income.rotationZ) + ";" + String(income.magnetometerX) + ";" + String(income.magnetometerY) + ";");
     Serial.print(String(income.magnetometerZ) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";");
     Serial.print(String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";" + String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";");
-    Serial.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";" + String(income.a) + ";");
-    Serial.print(String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";");
-    Serial.print(String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";");
-    Serial.print(String(income.h) + ";" + String(income.k) + ";" + String(income.l) + ";");
-    Serial.print(String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";");
-    Serial.println(String(income.u) + ";" + String(income.v) + ";" + String(income.w) + ";END");
+    Serial.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";");
+    Serial.println(String(income.a) + ";" + String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";" + String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";" + String(income.h) + ";" + String(income.i) + ";" + String(income.j) + ";" + String(income.k) + ";" + String(income.l) + ";" + String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";" + String(income.u) + ";" + String(income.v) + ";" + String(income.w) + ";END");
 
     if (file)
     {
@@ -141,12 +136,8 @@ void loop()
       file.print(String(income.rotationZ) + ";" + String(income.magnetometerX) + ";" + String(income.magnetometerY) + ";");
       file.print(String(income.magnetometerZ) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";");
       file.print(String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";" + String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";");
-      file.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";" + String(income.a) + ";");
-      file.print(String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";");
-      file.print(String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";");
-      file.print(String(income.h) + ";" + String(income.k) + ";" + String(income.l) + ";");
-      file.print(String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";");
-      file.println(String(income.u) + ";" + String(income.v) + ";" + String(income.w));
+      file.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";");
+      file.println(String(income.a) + ";" + String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";" + String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";" + String(income.h) + ";" + String(income.i) + ";" + String(income.j) + ";" + String(income.k) + ";" + String(income.l) + ";" + String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";" + String(income.u) + ";" + String(income.v) + ";" + String(income.w));
       file.close();
     }
     ocsData.Update(income, screenNum);
