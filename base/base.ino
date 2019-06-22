@@ -75,7 +75,7 @@ void setup()
 
   if (file) {
       file.print("message;light;uvIndex;tempCanSat;tempMPU;tempExternal;tempSCD30;ambientTemp;objectTemp;humCanSat;humExternal;humSCD30;pressCanSat;pressExternal;altCanSat;");
-      file.println("altExternal;accX;accY;accZ;rotX;rotY;rotZ;magX;magY;magZ;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con;a;b;c;d;e;f;g;h;i;j;k;l;r;s;t;u;v;w;");
+      file.println("altExternal;accX;accY;accZ;rotX;rotY;rotZ;magX;magY;magZ;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con;a;b;c;d;e;f;g;h;i;j;k;l;r;s;t;u;v;w;numberOfSatellites;RSSI;");
       file.close();
   }
 }
@@ -110,7 +110,8 @@ void loop()
     income = *(OcsStorage::message*)radio.DATA;
     file = SD.open(csvFilename, FILE_WRITE);
 
-    float rssi = radio.readRSSI();
+    int rssi = radio.readRSSI();
+
     Serial.print("START;" + String(income.messageId) + ";" + String(income.lightIntensity) + ";" + String(income.uvIndex) + ";");
     Serial.print(String(income.temperatureCanSat) + ";" + String(income.temperatureMPU) + ";" + String(income.temperatureExternal) + ";");
     Serial.print(String(income.temperatureSCD30) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";");
@@ -122,7 +123,8 @@ void loop()
     Serial.print(String(income.magnetometerZ) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";");
     Serial.print(String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";" + String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";");
     Serial.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";");
-    Serial.println(String(income.a) + ";" + String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";" + String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";" + String(income.h) + ";" + String(income.i) + ";" + String(income.j) + ";" + String(income.k) + ";" + String(income.l) + ";" + String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";" + String(income.u) + ";" + String(income.v) + ";" + String(income.w) + ";END");
+    Serial.print(String(income.a) + ";" + String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";" + String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";" + String(income.h) + ";" + String(income.i) + ";" + String(income.j) + ";" + String(income.k) + ";" + String(income.l) + ";" + String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";" + String(income.u) + ";" + String(income.v) + ";" + String(income.w) + ";");
+    Serial.println(String(income.numberOfSatellites) + ";"  + String(rssi) + ";END");
 
     if (file)
     {
@@ -137,7 +139,8 @@ void loop()
       file.print(String(income.magnetometerZ) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";");
       file.print(String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";" + String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";");
       file.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";");
-      file.println(String(income.a) + ";" + String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";" + String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";" + String(income.h) + ";" + String(income.i) + ";" + String(income.j) + ";" + String(income.k) + ";" + String(income.l) + ";" + String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";" + String(income.u) + ";" + String(income.v) + ";" + String(income.w));
+      file.print(String(income.a) + ";" + String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";" + String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";" + String(income.h) + ";" + String(income.i) + ";" + String(income.j) + ";" + String(income.k) + ";" + String(income.l) + ";" + String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";" + String(income.u) + ";" + String(income.v) + ";" + String(income.w) + ";");
+      file.println(String(income.numberOfSatellites) + ";"  + String(rssi));
       file.close();
     }
     ocsData.Update(income, screenNum);
