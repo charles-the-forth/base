@@ -8,6 +8,7 @@
 #endif
 
 uint8_t screenNum = 1;
+uint32_t messageId;
 
 #define SCREENS_COUNT 2
 
@@ -37,7 +38,10 @@ RFM69 radio(chip_select_pin, interupt_pin, true);
 Ucglib_ST7735_18x128x160_HWSPI ucg(6, 7, -1);
 OcsGraphics ocsDesign(ucg);
 OcsStorage ocsData(ocsDesign);
-OcsStorage::message income;
+OcsStorage::message1 data1;
+OcsStorage::message2 data2;
+OcsStorage::message3 data3;
+OcsStorage::message4 data4;
 File file;
 String csvFilename = "result.csv";
 
@@ -82,6 +86,7 @@ void setup()
 
 void loop()
 {
+  
   int button1 = digitalRead(BUTTON_1);
   int button2 = digitalRead(BUTTON_2);
   int button3 = digitalRead(BUTTON_3);
@@ -106,44 +111,117 @@ void loop()
   }
 
   if (radio.receiveDone()) // Got one!
-  {    
-    income = *(OcsStorage::message*)radio.DATA;
+  {
+    if (radio.DATA[0] == 1) {
+      data1 = *(OcsStorage::message1*)radio.DATA;
+      messageId = data1.messageId;
+
+      //Serial.println("Message 1");  
+    } else if (radio.DATA[0] == 2) {
+      data2 = *(OcsStorage::message2*)radio.DATA;
+      messageId = data2.messageId;
+
+      //Serial.println("Message 2");  
+    } else if (radio.DATA[0] == 3) {      
+      data3 = *(OcsStorage::message3*)radio.DATA;
+      messageId = data3.messageId;
+
+      //Serial.println("Message 3");  
+    } else if (radio.DATA[0] == 4) {
+      data4 = *(OcsStorage::message4*)radio.DATA;
+      messageId = data4.messageId;
+
+      //Serial.println("Message 4");
+    }
     file = SD.open(csvFilename, FILE_WRITE);
 
     int rssi = radio.readRSSI();
 
-    Serial.print("START;" + String(income.messageId) + ";" + String(income.lightIntensity) + ";" + String(income.uvIndex) + ";");
-    Serial.print(String(income.temperatureCanSat) + ";" + String(income.temperatureMPU) + ";" + String(income.temperatureExternal) + ";");
-    Serial.print(String(income.temperatureSCD30) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";");
-    Serial.print(String(income.humidityCanSat) + ";"+ String(income.humidityExternal) + ";" + String(income.humiditySCD30) + ";");
-    Serial.print(String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";");
-    Serial.print(String(income.altitudeExternal) + ";" + String(income.accelerationX)+ ";" + String(income.accelerationY) + ";");
-    Serial.print(String(income.accelerationZ) + ";" + String(income.rotationX) + ";" + String(income.rotationY) + ";");
-    Serial.print(String(income.rotationZ) + ";" + String(income.magnetometerX) + ";" + String(income.magnetometerY) + ";");
-    Serial.print(String(income.magnetometerZ) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";");
-    Serial.print(String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";" + String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";");
-    Serial.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";");
-    Serial.print(String(income.a) + ";" + String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";" + String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";" + String(income.h) + ";" + String(income.i) + ";" + String(income.j) + ";" + String(income.k) + ";" + String(income.l) + ";" + String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";" + String(income.u) + ";" + String(income.v) + ";" + String(income.w) + ";");
-    Serial.println(String(income.numberOfSatellites) + ";"  + String(rssi) + ";END");
+    Serial.print("START;" + String(messageId) + ";" + String(data1.lightIntensity) + ";" + String(data2.uvIndex) + ";");
+    Serial.print(String(data1.temperatureCanSat) + ";" + String(data2.temperatureMPU) + ";" + String(data1.temperatureExternal) + ";");
+    Serial.print(String(data2.temperatureSCD30) + ";" + String(data1.ambientTemp) + ";" + String(data1.objectTemp) + ";");
+    Serial.print(String(data1.humidityCanSat) + ";"+ String(data1.humidityExternal) + ";" + String(data2.humiditySCD30) + ";");
+    Serial.print(String(data1.pressureCanSat) + ";" + String(data1.pressureExternal) + ";" + String(data1.altitudeCanSat) + ";");
+    Serial.print(String(data1.altitudeExternal) + ";" + String(data3.accelerationX)+ ";" + String(data3.accelerationY) + ";");
+    Serial.print(String(data3.accelerationZ) + ";" + String(data3.rotationX) + ";" + String(data3.rotationY) + ";");
+    Serial.print(String(data3.rotationZ) + ";" + String(data3.magnetometerX) + ";" + String(data3.magnetometerY) + ";");
+    Serial.print(String(data3.magnetometerZ) + ";" + String(data2.latInt) + ";" + String(data2.lonInt) + ";");
+    Serial.print(String(data2.latAfterDot) + ";" + String(data2.lonAfterDot) + ";" + String(data1.co2SCD30) + ";"  + String(data1.co2CCS811) + ";");
+    Serial.print(String(data2.tvoc) + ";"  + String(data2.o2Concentration) + ";");
+    Serial.print(String(data4.a) + ";" + String(data4.b) + ";" + String(data4.c) + ";" + String(data4.d) + ";" + String(data4.e) + ";" + String(data4.f) + ";" + String(data4.g) + ";" + String(data4.h) + ";" + String(data4.i) + ";" + String(data4.j) + ";" + String(data4.r) + ";" + String(data4.s) + ";" + String(data4.t) + ";");
+    Serial.println(String(data2.numberOfSatellites) + ";"  + String(rssi) + ";END");
 
     if (file)
     {
-      file.print(String(income.messageId) + ";" + String(income.lightIntensity) + ";" + String(income.uvIndex) + ";");
-      file.print(String(income.temperatureCanSat) + ";" + String(income.temperatureMPU) + ";" + String(income.temperatureExternal) + ";");
-      file.print(String(income.temperatureSCD30) + ";" + String(income.ambientTemp) + ";" + String(income.objectTemp) + ";");
-      file.print(String(income.humidityCanSat) + ";"+ String(income.humidityExternal) + ";" + String(income.humiditySCD30) + ";");
-      file.print(String(income.pressureCanSat) + ";" + String(income.pressureExternal) + ";" + String(income.altitudeCanSat) + ";");
-      file.print(String(income.altitudeExternal) + ";" + String(income.accelerationX)+ ";" + String(income.accelerationY) + ";");
-      file.print(String(income.accelerationZ) + ";" + String(income.rotationX) + ";" + String(income.rotationY) + ";");
-      file.print(String(income.rotationZ) + ";" + String(income.magnetometerX) + ";" + String(income.magnetometerY) + ";");
-      file.print(String(income.magnetometerZ) + ";" + String(income.latInt) + ";" + String(income.lonInt) + ";");
-      file.print(String(income.latAfterDot) + ";" + String(income.lonAfterDot) + ";" + String(income.co2SCD30) + ";"  + String(income.co2CCS811) + ";");
-      file.print(String(income.tvoc) + ";"  + String(income.o2Concentration) + ";");
-      file.print(String(income.a) + ";" + String(income.b) + ";" + String(income.c) + ";" + String(income.d) + ";" + String(income.e) + ";" + String(income.f) + ";" + String(income.g) + ";" + String(income.h) + ";" + String(income.i) + ";" + String(income.j) + ";" + String(income.k) + ";" + String(income.l) + ";" + String(income.r) + ";" + String(income.s) + ";" + String(income.t) + ";" + String(income.u) + ";" + String(income.v) + ";" + String(income.w) + ";");
-      file.println(String(income.numberOfSatellites) + ";"  + String(rssi));
+      file.print(String(messageId) + ";" + String(data1.lightIntensity) + ";" + String(data2.uvIndex) + ";");
+      file.print(String(data1.temperatureCanSat) + ";" + String(data2.temperatureMPU) + ";");
+      file.print(String(data1.temperatureExternal) + ";" + String(data2.temperatureSCD30) + ";" + String(data1.ambientTemp) + ";" + String(data1.objectTemp) + ";" + String(data1.humidityCanSat) + ";"+ String(data1.humidityExternal) + ";" + String(data2.humiditySCD30) + ";");
+      file.print(String(data1.pressureCanSat) + ";" + String(data1.pressureExternal) + ";");
+      file.print(String(data1.altitudeCanSat) + ";" + String(data1.altitudeExternal) + ";" + String(data3.accelerationX)+ ";");
+      file.print(String(data3.accelerationY) + ";" + String(data3.accelerationZ) + ";" + String(data3.rotationX) + ";");
+      file.print(String(data3.rotationY) + ";" + String(data3.rotationZ) + ";" + String(data3.magnetometerX) + ";");
+      file.print(String(data3.magnetometerY) + ";" + String(data3.magnetometerZ) + ";" + String(data2.numberOfSatellites) + ";");
+      file.print(String(data2.latInt) + ";"  + String(data2.lonInt) + ";"  + String(data2.latAfterDot) + ";" + String(data2.lonAfterDot) + ";");
+      file.print(String(data1.co2SCD30) + ";"  + String(data1.co2CCS811) + ";"  + String(data2.tvoc) + ";"  + String(data2.o2Concentration) + ";");
+      file.println(String(data4.a) + ";" + String(data4.b) + ";" + String(data4.c) + ";" + String(data4.d) + ";" + String(data4.e) + ";" + String(data4.f) + ";" + String(data4.g) + ";" + String(data4.h) + ";" + String(data4.i) + ";" + String(data4.j) + ";" + String(data4.r) + ";" + String(data4.s) + ";" + String(data4.t));
       file.close();
     }
-    ocsData.Update(income, screenNum);
+    Serial.println("Message id: " + String(messageId));
+  
+    Serial.println("Light intensity: " + String(data1.lightIntensity));
+    
+    Serial.println("UV sensor: " + String(data2.uvIndex));
+
+    Serial.println("Temperature CanSat: " + String(data1.temperatureCanSat));
+    Serial.println("Temperature MPU: " + String(data2.temperatureMPU));
+    Serial.println("Temperature External: " + String(data1.temperatureExternal));
+    Serial.println("Temperature SCD30: " + String(data2.temperatureSCD30));
+    Serial.println("Ambient temperature: " + String(data1.ambientTemp));
+    Serial.println("Object temperature: " + String(data1.objectTemp));
+  
+    Serial.println("Pressure CanSat: " + String(data1.pressureCanSat));
+    Serial.println("Pressure External: " + String(data1.pressureExternal));
+
+    Serial.println("Humidity CanSat: " + String(data1.humidityCanSat));
+    Serial.println("Humidity External: " + String(data1.humidityExternal));
+    Serial.println("Humidity SCD30: " + String(data2.humiditySCD30));
+
+    Serial.println("Altitude CanSat: " + String(data1.altitudeCanSat));
+    Serial.println("Altitude External: " + String(data1.altitudeExternal));
+
+    Serial.println("O2: " + String(data2.o2Concentration) + " %");
+    Serial.println("Acceleration X: " + String(data3.accelerationX));
+    Serial.println("Acceleration Y: " + String(data3.accelerationY));
+    Serial.println("Acceleration Z: " + String(data3.accelerationZ));
+
+    Serial.println("Rotation X: " + String(data3.rotationX));
+    Serial.println("Rotation Y: " + String(data3.rotationY));
+    Serial.println("Rotation Z: " + String(data3.rotationZ));
+
+    Serial.println("Magnetometer X: " + String(data3.magnetometerX));
+    Serial.println("Magnetometer Y: " + String(data3.magnetometerY));
+    Serial.println("Magnetometer Z: " + String(data3.magnetometerZ));
+
+    Serial.println("CO2 SCD30: " + String(data1.co2SCD30) + " ppm");
+    Serial.println("CO2 CCS811: " + String(data1.co2CCS811) + " ppm");
+    Serial.println("TVOC CCS811: " + String(data2.tvoc) + " ppb");
+
+    Serial.println("A: " + String(data4.a));
+    Serial.println("B: " + String(data4.b));
+    Serial.println("C: " + String(data4.c));
+    Serial.println("D: " + String(data4.d));
+    Serial.println("E: " + String(data4.e));
+    Serial.println("F: " + String(data4.f));
+    Serial.println("G: " + String(data4.g));
+    Serial.println("H: " + String(data4.h));
+    Serial.println("I: " + String(data4.i));
+    Serial.println("J: " + String(data4.j));
+    Serial.println("R: " + String(data4.r));
+    Serial.println("S: " + String(data4.s));
+    Serial.println("T: " + String(data4.t));
+    
+    //ocsData.Update(data, screenNum);
+    Serial.println("-----------------------------------------");
   }
   delay(50);
 }
