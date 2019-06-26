@@ -163,10 +163,11 @@ void loop()
       file.print(String(data3.magnetometerY) + ";" + String(data3.magnetometerZ) + ";" + String(data2.numberOfSatellites) + ";");
       file.print(String(data2.latInt) + ";"  + String(data2.lonInt) + ";"  + String(data2.latAfterDot) + ";" + String(data2.lonAfterDot) + ";");
       file.print(String(data1.co2SCD30) + ";"  + String(data1.co2CCS811) + ";"  + String(data2.tvoc) + ";"  + String(data2.o2Concentration) + ";");
-      file.println(String(data4.a) + ";" + String(data4.b) + ";" + String(data4.c) + ";" + String(data4.d) + ";" + String(data4.e) + ";" + String(data4.f) + ";" + String(data4.g) + ";" + String(data4.h) + ";" + String(data4.i) + ";" + String(data4.j) + ";" + String(data4.r) + ";" + String(data4.s) + ";" + String(data4.t));
+      file.print(String(data4.a) + ";" + String(data4.b) + ";" + String(data4.c) + ";" + String(data4.d) + ";" + String(data4.e) + ";" + String(data4.f) + ";" + String(data4.g) + ";" + String(data4.h) + ";" + String(data4.i) + ";" + String(data4.j) + ";" + String(data4.r) + ";" + String(data4.s) + ";" + String(data4.t) + ";");
+      file.println(String(data2.numberOfSatellites) + ";"  + String(rssi));
       file.close();
     }
-    Serial.println("Message id: " + String(messageId));
+    /*Serial.println("Message id: " + String(messageId));
   
     Serial.println("Light intensity: " + String(data1.lightIntensity));
     
@@ -221,7 +222,7 @@ void loop()
     Serial.println("T: " + String(data4.t));
     
     //ocsData.Update(data, screenNum);
-    Serial.println("-----------------------------------------");
+    Serial.println("-----------------------------------------");*/
   }
   delay(50);
 }
