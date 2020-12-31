@@ -1,5 +1,6 @@
 #include <SD.h>
 #include <SDCard.h>
+#include <DebugLogger.h>
 #include <OcsStorage.h>
 #include <RFM69.h>
 #include <Ucglib.h>
@@ -40,6 +41,7 @@ OcsStorage::message4 data4;
 
 File file;
 SDCard sdCard;
+DebugLogger debugLogger;
 
 String csvFilename = sdCard.getFilename();
 bool isSDCardInitialised = false;
@@ -131,7 +133,7 @@ void loop() {
     int rssi = radio.readRSSI();
 
     if (debugLog) {
-      printAllReceivedData();
+      debugLogger.printAllTransferedData(messageId, data1, data2, data3, data4);
     }
 
     if (file) {
@@ -193,60 +195,4 @@ void writeFileHeader() {
       file.println("altExternal;accX;accY;accZ;rotX;rotY;rotZ;magX;magY;magZ;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con;a;b;c;d;e;f;g;h;i;j;k;l;r;s;t;u;v;w;numberOfSatellites;RSSI;");
       file.close();
   }
-}
-
-void printAllReceivedData() {
-  Serial.println("Message id: " + String(messageId));
-  
-  Serial.println("Light intensity: " + String(data1.lightIntensity));
-  
-  Serial.println("UV sensor: " + String(data2.uvIndex));
-
-  Serial.println("Temperature CanSat: " + String(data1.temperatureCanSat));
-  Serial.println("Temperature MPU: " + String(data2.temperatureMPU));
-  Serial.println("Temperature External: " + String(data1.temperatureExternal));
-  Serial.println("Temperature SCD30: " + String(data2.temperatureSCD30));
-  Serial.println("Ambient temperature: " + String(data1.ambientTemp));
-  Serial.println("Object temperature: " + String(data1.objectTemp));
-
-  Serial.println("Pressure CanSat: " + String(data1.pressureCanSat));
-  Serial.println("Pressure External: " + String(data1.pressureExternal));
-
-  Serial.println("Humidity CanSat: " + String(data1.humidityCanSat));
-  Serial.println("Humidity External: " + String(data1.humidityExternal));
-  Serial.println("Humidity SCD30: " + String(data2.humiditySCD30));
-
-  Serial.println("Altitude CanSat: " + String(data1.altitudeCanSat));
-  Serial.println("Altitude External: " + String(data1.altitudeExternal));
-
-  Serial.println("O2: " + String(data2.o2Concentration) + " %");
-  Serial.println("Acceleration X: " + String(data3.accelerationX));
-  Serial.println("Acceleration Y: " + String(data3.accelerationY));
-  Serial.println("Acceleration Z: " + String(data3.accelerationZ));
-
-  Serial.println("Rotation X: " + String(data3.rotationX));
-  Serial.println("Rotation Y: " + String(data3.rotationY));
-  Serial.println("Rotation Z: " + String(data3.rotationZ));
-
-  Serial.println("Magnetometer X: " + String(data3.magnetometerX));
-  Serial.println("Magnetometer Y: " + String(data3.magnetometerY));
-  Serial.println("Magnetometer Z: " + String(data3.magnetometerZ));
-
-  Serial.println("CO2 SCD30: " + String(data1.co2SCD30) + " ppm");
-  Serial.println("CO2 CCS811: " + String(data1.co2CCS811) + " ppm");
-  Serial.println("TVOC CCS811: " + String(data2.tvoc) + " ppb");
-
-  Serial.println("A: " + String(data4.a));
-  Serial.println("B: " + String(data4.b));
-  Serial.println("C: " + String(data4.c));
-  Serial.println("D: " + String(data4.d));
-  Serial.println("E: " + String(data4.e));
-  Serial.println("F: " + String(data4.f));
-  Serial.println("G: " + String(data4.g));
-  Serial.println("H: " + String(data4.h));
-  Serial.println("I: " + String(data4.i));
-  Serial.println("J: " + String(data4.j));
-  Serial.println("R: " + String(data4.r));
-  Serial.println("S: " + String(data4.s));
-  Serial.println("T: " + String(data4.t));
 }
