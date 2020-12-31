@@ -9,8 +9,6 @@
 #define UCG_INTERRUPT_SAFE
 #endif
 
-#define Serial SerialUSB
-
 uint8_t screenNum = 1;
 uint32_t messageId;
 
@@ -20,6 +18,7 @@ const int PC_BAUDRATE = 57600;
 const int BUTTON_1_PIN = 5;
 const int BUTTON_2_PIN = 4;
 const int BUTTON_3_PIN = 3;
+const bool DEBUG_LOG_ENABLED = true;
 
 #define NETWORKID       0
 #define MYNODEID        2
@@ -41,16 +40,15 @@ OcsStorage::message4 data4;
 
 File file;
 SDCard sdCard;
-DebugLogger debugLogger;
+DebugLogger debugLogger(DEBUG_LOG_ENABLED, PC_BAUDRATE);
 
 String csvFilename = sdCard.getFilename();
 bool isSDCardInitialised = false;
 bool isRadioOk = true;
-bool debugLog = true;
 
 void setup()
 {
-  Serial.begin(PC_BAUDRATE);
+  debugLogger.begin();
 
   ucg.begin(UCG_FONT_MODE_TRANSPARENT);
 
@@ -81,7 +79,7 @@ void loop() {
       ocsDesign.drawScreen(screenNum);
       delay(300);
     }
-  } else if (button2 == LOW && screenNum != 2) {
+  } else if (button2 == LOW) {
     screenNum = 1;
     ocsDesign.drawScreen(screenNum);
     delay(300);
@@ -98,43 +96,29 @@ void loop() {
       data1 = *(OcsStorage::message1*)radio.DATA;
       messageId = data1.messageId;
       ocsData.Update(data1, screenNum);
-
-      if (debugLog) {       
-        Serial.println("Message 1 received!"); 
-      }
+      debugLogger.log("Message 1 received!");
     } else if (radio.DATA[0] == 2) {
       data2 = *(OcsStorage::message2*)radio.DATA;
       messageId = data2.messageId;
       ocsData.Update(data2, screenNum);
-
-      if (debugLog) {       
-        Serial.println("Message 2 received!"); 
-      }
+      debugLogger.log("Message 2 received!");
     } else if (radio.DATA[0] == 3) {      
       data3 = *(OcsStorage::message3*)radio.DATA;
       messageId = data3.messageId;
       ocsData.Update(data3, screenNum);
-
-      if (debugLog) {       
-        Serial.println("Message 3 received!"); 
-      }
+      debugLogger.log("Message 3 received!");
     } else if (radio.DATA[0] == 4) {
       data4 = *(OcsStorage::message4*)radio.DATA;
       messageId = data4.messageId;
       ocsData.Update(data4, screenNum);
-
-      if (debugLog) {       
-        Serial.println("Message 4 received!"); 
-      }
+      debugLogger.log("Message 4 received!");
     }
 
     file = SD.open(csvFilename, FILE_WRITE);
 
     int rssi = radio.readRSSI();
 
-    if (debugLog) {
-      debugLogger.printAllTransferedData(messageId, data1, data2, data3, data4);
-    }
+    debugLogger.printAllTransferedData(messageId, data1, data2, data3, data4);
 
     if (file) {
       file.print(String(messageId) + ";" + String(data1.lightIntensity) + ";" + String(data2.uvIndex) + ";");
@@ -150,10 +134,8 @@ void loop() {
       file.println(String(data4.a) + ";" + String(data4.b) + ";" + String(data4.c) + ";" + String(data4.d) + ";" + String(data4.e) + ";" + String(data4.f) + ";" + String(data4.g) + ";" + String(data4.h) + ";" + String(data4.i) + ";" + String(data4.j) + ";" + String(data4.r) + ";" + String(data4.s) + ";" + String(data4.t));
       file.close();
     }
-    
-    if (debugLog) {
-      Serial.println("-----------------------------------------------");  
-    }    
+
+    debugLogger.log("-----------------------------------------------");
   }
   delay(50);
 }
@@ -164,26 +146,20 @@ void initRadio() {
   if (initialised) {
     radio.setFrequency(FREQUENCY_SPECIFIC_HZ);
     radio.setHighPower(true);
-
-    if (debugLog) {
-      Serial.println("RFM69HW initialisation successful."); 
-    }
+    debugLogger.log("RFM69HW initialisation successful."); 
   } else {
     isRadioOk = false;
-
-    if (debugLog) {
-      Serial.println("RFM69HW initialisation failed!"); 
-    }
+    debugLogger.log("RFM69HW initialisation failed!");
   }
 }
 
 void initSDCard() {
   isSDCardInitialised = SD.begin(sd_cs_pin);
 
-  if (isSDCardInitialised && debugLog) {
-    Serial.println("SD card initialisation successful.");
-  } else if (debugLog) {   
-    Serial.println("SD card initialisation failed!"); 
+  if (isSDCardInitialised) {
+    debugLogger.log("SD card initialisation successful.");
+  } else {   
+    debugLogger.log("SD card initialisation failed!"); 
   }
 }
 
