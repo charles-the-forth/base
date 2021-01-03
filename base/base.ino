@@ -131,8 +131,9 @@ void loop() {
       file.print(String(data3.magnetometerY) + ";" + String(data3.magnetometerZ) + ";" + String(data2.numberOfSatellites) + ";");
       file.print(String(data2.latInt) + ";"  + String(data2.lonInt) + ";"  + String(data2.latAfterDot) + ";" + String(data2.lonAfterDot) + ";");
       file.print(String(data1.co2SCD30) + ";"  + String(data1.co2CCS811) + ";"  + String(data2.tvoc) + ";"  + String(data2.o2Concentration) + ";");
-      file.println(String(data4.a) + ";" + String(data4.b) + ";" + String(data4.c) + ";" + String(data4.d) + ";" + String(data4.e) + ";" + String(data4.f) + ";" + String(data4.g) + ";" + String(data4.h) + ";" + String(data4.i) + ";" + String(data4.j) + ";" + String(data4.r) + ";" + String(data4.s) + ";" + String(data4.t));
+      file.println(String(data4.a) + ";" + String(data4.b) + ";" + String(data4.c) + ";" + String(data4.d) + ";" + String(data4.e) + ";" + String(data4.f) + ";" + String(data4.g) + ";" + String(data4.h) + ";" + String(data4.i) + ";" + String(data4.j) + ";" + String(data4.r) + ";" + String(data4.s) + ";" + String(data4.t) + ";" + rssi);
       file.close();
+      debugLogger.log("Data written to SD card.");
     }
 
     debugLogger.log("-----------------------------------------------");
@@ -168,7 +169,8 @@ void writeFileHeader() {
 
   if (file) {
       file.print("message;light;uvIndex;tempCanSat;tempMPU;tempExternal;tempSCD30;ambientTemp;objectTemp;humCanSat;humExternal;humSCD30;pressCanSat;pressExternal;altCanSat;");
-      file.println("altExternal;accX;accY;accZ;rotX;rotY;rotZ;magX;magY;magZ;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Con;a;b;c;d;e;f;g;h;i;j;k;l;r;s;t;u;v;w;numberOfSatellites;RSSI;");
+      file.print("altExternal;accX;accY;accZ;rotX;rotY;rotZ;magX;magY;magZ;numberOfSatellites;latInt;lonInt;latAfterDot;lonAfterDot;co2SCD30;co2CCS811;tvoc;o2Concentration;");
+      file.println("a;b;c;d;e;f;g;h;i;j;r;s;t;rssi");
       file.close();
   }
 }
